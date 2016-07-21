@@ -303,6 +303,11 @@
                 android:layout_weight="1"
                 android:text="Robot Controller:"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
+            <TextView
+                android:id="@+id/txtIsRCInstalled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <FrameLayout
                 android:id="@+id/isRCInstalled"
@@ -327,6 +332,11 @@
                 android:layout_weight="1"
                 android:text="Driver Station:"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
+            <TextView
+                android:id="@+id/txtIsDSInstalled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <FrameLayout
                 android:id="@+id/isDSInstalled"
@@ -348,7 +358,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Channel Changer:"
+                android:text="ZTE Channel Changer:"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/txtIsCCInstalled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <FrameLayout

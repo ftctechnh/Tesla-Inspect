@@ -33,7 +33,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,8 +46,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView widiName, widiConnected, wifiEnabled, batteryLevel, osVersion, airplaneMode, bluetooth,
             wifiConnected, passFail, appsStatus;
     TextView txtManufacturer, txtModel;
+    TextView txtIsRCInstalled, txtIsDSInstalled, txtIsCCInstalled;
     Button whatsWrong;
-    FrameLayout isRC, isDS, isCC;
     ActionBar ab;
     final int dsid = 9277, ccid = 10650;
     String rcApp = "com.qualcomm.ftcrobotcontroller", dsApp = "com.qualcomm.ftcdriverstation",
@@ -63,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     static final String STR_ZTE="zte";
     static final String STR_ZTESPEED="N9130";
+
+    static final int RC_MIN_VERSIONCODE=9;
+    static final int DS_MIN_VERSIONCODE=9;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +83,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
-        isRC = (FrameLayout) findViewById(R.id.isRCInstalled);
-        isDS = (FrameLayout) findViewById(R.id.isDSInstalled);
-        isCC = (FrameLayout) findViewById(R.id.isCCInstalled);
+        txtIsRCInstalled = (TextView)findViewById(R.id.txtIsRCInstalled);
+        txtIsDSInstalled = (TextView)findViewById(R.id.txtIsDSInstalled);
+        txtIsCCInstalled = (TextView)findViewById(R.id.txtIsCCInstalled);
+
 
         widiName = (TextView) findViewById(R.id.widiName);
         widiConnected = (TextView) findViewById(R.id.widiConnected);
@@ -197,36 +200,71 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         wifiConnected.setTextColor(!getWifiConnected() ? darkGreen : Color.RED);
 
-        Boolean appsOkay = validateAppsInstalled();
-        appsStatus.setTextColor(appsOkay ? darkGreen : Color.RED);
-        appsStatus.setText(validateAppsInstalled() ? "\u2713" : "X");
+        // check the installed apps.
+        Boolean appsOkay = true;
 
-        isRC.removeAllViews();
-        isDS.removeAllViews();
-        isCC.removeAllViews();
-
-        if (packageExists(ccApp)) {
-            isCC.addView(getVersionTV(getPackageInfo(ccApp), true));
-        } else {
-            isCC.addView(buildButton(ccid));
-        }
-
-        if (packageExists(rcApp)) {
-            isRC.addView(getVersionTV(getPackageInfo(rcApp), appsOkay));
-        } else {
-            if (appInventorExists()) {
-                isRC.addView(getTV(true, appsOkay));
+        // check if channel change app should be installed.
+        // is this a ZTE speed?
+        if(STR_ZTE.equalsIgnoreCase(Build.MANUFACTURER) && STR_ZTESPEED.equalsIgnoreCase(Build.MODEL))  {
+            // ZTE Speed should have channel change app.
+            // Note that only the RC really needs the channel change app.
+            // For now, however, check if ccApp is installed on all ZTE Speed phones.
+            if(packageExists(ccApp)) {
+                txtIsCCInstalled.setText(getPackageInfo(ccApp).versionName);
+                txtIsCCInstalled.setTextColor(darkGreen);
             } else {
-                isRC.addView(getTV(false, appsOkay));
+                txtIsCCInstalled.setText("X");
+                txtIsCCInstalled.setTextColor(Color.RED);
+                appsOkay = false;
             }
+        } else {
+            txtIsCCInstalled.setText("N/A");
+            txtIsCCInstalled.setTextColor(darkGreen);
         }
 
-        if (packageExists(dsApp)) {
-            isDS.addView(getVersionTV(getPackageInfo(dsApp), appsOkay));
+        // is the robot controller installed?
+        if (packageExists(rcApp)) {
+            // display version number.
+            txtIsRCInstalled.setText(getPackageInfo(rcApp).versionName);
+            if (getPackageInfo(rcApp).versionCode < RC_MIN_VERSIONCODE) {
+                txtIsRCInstalled.setTextColor(yellow);
+            } else {
+                txtIsRCInstalled.setTextColor(darkGreen);
+            }
         } else {
-            if (!appsOkay) isDS.addView(buildButton(dsid));
-            else isDS.addView(getTV(false, appsOkay));
+            txtIsRCInstalled.setText("X");
         }
+
+        // is the driver station installed?
+        if (packageExists(dsApp)) {
+            // check version number.
+            txtIsDSInstalled.setText(getPackageInfo(dsApp).versionName);
+            if (getPackageInfo(dsApp).versionCode < DS_MIN_VERSIONCODE) {
+                txtIsDSInstalled.setTextColor(yellow);
+            } else {
+                txtIsDSInstalled.setTextColor(darkGreen);
+            }
+        } else {
+            txtIsDSInstalled.setText("X");
+        }
+
+        if(packageExists(rcApp) == false && packageExists(dsApp) == false)  {
+            // you should have at least one or the other installed.
+            appsOkay = false;
+            txtIsDSInstalled.setTextColor(Color.RED);
+            txtIsRCInstalled.setTextColor(Color.RED);
+        }
+
+        if (packageExists(rcApp) && packageExists(dsApp)) {
+            // you should not have both installed.
+            appsOkay = false;
+            txtIsDSInstalled.setTextColor(Color.RED);
+            txtIsRCInstalled.setTextColor(Color.RED);
+        }
+
+        // is there installation of apps OK?
+        appsStatus.setTextColor(appsOkay ? darkGreen : Color.RED);
+        appsStatus.setText(appsOkay ? "\u2713" : "X");
 
         getBatteryInfo();
 
@@ -418,6 +456,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         return tv;
     }
+
 
     private TextView getVersionTV(PackageInfo i, Boolean passing) {
         TextView tv = new TextView(this);
