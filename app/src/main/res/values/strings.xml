@@ -11,4 +11,6 @@
     <string name="missingChannelChanger">\u2022You\'re missing the Channel Changer app. While this isn\'t required by FIRST, it\'s strongly recommended to have. \n</string>
     <string name="goodToGo">Everything looks good to us!\n</string>
     <string name="fixOffer">\nWe found errors, but we can try to fix some automatically. Would you like us to try?</string>
+    <string name="stringManufacturer">Manufacturer:</string>
+    <string name="stringModel">Model:</string>
 </resources>

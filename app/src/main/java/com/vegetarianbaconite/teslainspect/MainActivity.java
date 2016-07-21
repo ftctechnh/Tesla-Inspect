@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     TextView widiName, widiConnected, wifiEnabled, batteryLevel, osVersion, airplaneMode, bluetooth,
             wifiConnected, passFail, appsStatus;
+    TextView txtManufacturer, txtModel;
     Button whatsWrong;
     FrameLayout isRC, isDS, isCC;
     ActionBar ab;
@@ -59,6 +60,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     IntentFilter filter;
     Integer darkGreen = Color.rgb(47, 151, 47);
     Integer yellow = Color.rgb(178, 178, 0);
+
+    static final String STR_ZTE="zte";
+    static final String STR_ZTESPEED="N9130";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +97,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         appsStatus = (TextView) findViewById(R.id.appsStatus);
         whatsWrong = (Button) findViewById(R.id.startFixFlow);
         whatsWrong.setOnClickListener(this);
+
+        txtManufacturer = (TextView)findViewById(R.id.txtManufacturer);
+        txtModel = (TextView)findViewById(R.id.txtModel);
 
         osRegex1 = Pattern.compile("4\\.2\\.\\d");
         osRegex2 = Pattern.compile("4\\.4\\.\\d");
@@ -176,6 +183,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bluetooth.setText(getBluetooth() ? "On" : "Off");
         wifiConnected.setText(getWifiConnected() ? "Yes" : "No");
         widiName.setText(widiNameString);
+
+        txtManufacturer.setText(Build.MANUFACTURER);
+        txtModel.setText(Build.MODEL);
 
         widiConnected.setTextColor(getWiDiConnected() ? darkGreen : Color.RED);
         wifiEnabled.setTextColor(getWiFiEnabled() ? darkGreen : Color.RED);
@@ -281,7 +291,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public Boolean validateVersion() {
-        return (osRegex2.matcher(Build.VERSION.RELEASE).find() || osRegex1.matcher(Build.VERSION.RELEASE).find());
+        boolean bVal;
+        // is this a ZTE speed?
+        if(STR_ZTE.equalsIgnoreCase(Build.MANUFACTURER) && STR_ZTESPEED.equalsIgnoreCase(Build.MODEL))  {
+            // ZTE Speed should be Kit Kat. ZTE did not upgrade Speed beyond Kit Kat.
+            if(Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // for 2016-2017 season we recommend Marshmallow or higher.
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     public Boolean validateDeviceName() {
