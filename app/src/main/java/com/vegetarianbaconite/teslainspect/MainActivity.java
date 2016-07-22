@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     IntentFilter filter;
     Integer darkGreen = Color.rgb(47, 151, 47);
     Integer yellow = Color.rgb(178, 178, 0);
+    Integer orange = Color.rgb(255, 128, 0);
 
     static final String STR_ZTE="zte";
     static final String STR_ZTESPEED="N9130";
@@ -227,7 +228,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // display version number.
             txtIsRCInstalled.setText(getPackageInfo(rcApp).versionName);
             if (getPackageInfo(rcApp).versionCode < RC_MIN_VERSIONCODE) {
-                txtIsRCInstalled.setTextColor(yellow);
+                txtIsRCInstalled.setTextColor(orange);
+                appsOkay = false;
             } else {
                 txtIsRCInstalled.setTextColor(darkGreen);
             }
@@ -241,7 +243,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // check version number.
             txtIsDSInstalled.setText(getPackageInfo(dsApp).versionName);
             if (getPackageInfo(dsApp).versionCode < DS_MIN_VERSIONCODE) {
-                txtIsDSInstalled.setTextColor(yellow);
+                txtIsDSInstalled.setTextColor(orange);
+                appsOkay = false;
             } else {
                 txtIsDSInstalled.setTextColor(darkGreen);
             }
@@ -390,7 +393,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         float batteryPct = level / (float) scale;
 
         batteryLevel.setText(Math.round(batteryPct * 100f) + "%");
-        batteryLevel.setTextColor(batteryPct > 0.6 ? darkGreen : yellow);
+        batteryLevel.setTextColor(batteryPct > 0.6 ? darkGreen : orange);
     }
 
     private Runnable getRefreshRunnable() {
@@ -454,7 +457,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         tv.setText(installed ? "\u2713" : "X");
         tv.setTextAppearance(this, android.R.style.TextAppearance_Large);
-        tv.setTextColor(passing ? darkGreen : yellow);
+        tv.setTextColor(passing ? darkGreen : orange);
 
         return tv;
     }
@@ -465,7 +468,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         tv.setText(i.versionName);
         tv.setTextAppearance(this, android.R.style.TextAppearance_Large);
-        tv.setTextColor(passing ? darkGreen : yellow);
+        tv.setTextColor(passing ? darkGreen : orange);
 
         return tv;
     }
