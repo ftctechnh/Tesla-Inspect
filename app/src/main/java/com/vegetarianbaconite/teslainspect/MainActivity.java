@@ -9,6 +9,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.SupplicantState;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     String rcApp = "com.qualcomm.ftcrobotcontroller", dsApp = "com.qualcomm.ftcdriverstation",
             ccApp = "com.zte.wifichanneleditor", widiNameString = "";
     DeviceNameReceiver mDeviceNameReceiver;
-    Pattern osRegex1, osRegex2, teamNoRegex, rcRegex, dsRegex;
+    Pattern teamNoRegex;
     Handler handler;
     Runnable refreshRunnable;
     IntentFilter filter;
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         ab = getSupportActionBar();
+        ab.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF0000")));
         ab.setTitle("Tesla Inspect: " + BuildConfig.VERSION_NAME);
 
         refreshRunnable = new Runnable() {
@@ -101,13 +103,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         txtManufacturer = (TextView)findViewById(R.id.txtManufacturer);
         txtModel = (TextView)findViewById(R.id.txtModel);
 
-        osRegex1 = Pattern.compile("4\\.2\\.\\d");
-        osRegex2 = Pattern.compile("4\\.4\\.\\d");
         teamNoRegex = Pattern.compile("^\\d{1,5}(-\\w)?-(RC|DS)\\z", Pattern.CASE_INSENSITIVE);
-        rcRegex = Pattern.compile("RC");
-        dsRegex = Pattern.compile("DS");
 
-        initReciever();
+        initReceiver();
         startReceivingWidiInfo();
 
 
@@ -358,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return new WifiP2pDevice().status == WifiP2pDevice.CONNECTED;
     }
 
-    private void initReciever() {
+    private void initReceiver() {
         mDeviceNameReceiver = new DeviceNameReceiver();
         mDeviceNameReceiver.setOnDeviceNameReceivedListener(this);
         filter = new IntentFilter(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);

@@ -374,7 +374,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:text="Powered by Team HazMat:\n9277 &amp; 10650"
+                android:text="Code courtesy of Team HazMat:\n9277 &amp; 10650"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
 
