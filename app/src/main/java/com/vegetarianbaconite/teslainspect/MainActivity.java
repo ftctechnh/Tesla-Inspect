@@ -33,7 +33,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -441,37 +440,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private TextView getTV(boolean installed, boolean passing) {
-        TextView tv = new TextView(this);
-
-        tv.setText(installed ? "\u2713" : "X");
-        tv.setTextAppearance(this, android.R.style.TextAppearance_Large);
-        tv.setTextColor(passing ? darkGreen : orange);
-
-        return tv;
-    }
-
-
-    private TextView getVersionTV(PackageInfo i, Boolean passing) {
-        TextView tv = new TextView(this);
-
-        tv.setText(i.versionName);
-        tv.setTextAppearance(this, android.R.style.TextAppearance_Large);
-        tv.setTextColor(passing ? darkGreen : orange);
-
-        return tv;
-    }
-
-    private Button buildButton(int id) {
-        Button button = new Button(this);
-
-        button.setText("Install");
-        button.setId(id);
-        button.setOnClickListener(this);
-
-        return button;
-    }
-
     private void startStore(String appPackageName) {
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
@@ -497,6 +465,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         WifiManager mainWifiObj = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         List<WifiConfiguration> list = mainWifiObj.getConfiguredNetworks();
         for (WifiConfiguration i : list) {
+            Log.d("TIENG", String.format("TIE i = %s", i.toString()));
             mainWifiObj.removeNetwork(i.networkId);
             mainWifiObj.saveConfiguration();
         }
