@@ -44,10 +44,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DeviceNameReceiver.OnDeviceNameReceivedListener {
 
     TextView widiName, widiConnected, wifiEnabled, batteryLevel, osVersion, airplaneMode, bluetooth,
-            wifiConnected, passFail, appsStatus;
+            wifiConnected, appsStatus;
     TextView txtManufacturer, txtModel;
     TextView txtIsRCInstalled, txtIsDSInstalled, txtIsCCInstalled;
-    Button whatsWrong;
     ActionBar ab;
     final int dsid = 9277, ccid = 10650;
     String rcApp = "com.qualcomm.ftcrobotcontroller", dsApp = "com.qualcomm.ftcdriverstation",
@@ -97,10 +96,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         airplaneMode = (TextView) findViewById(R.id.airplaneMode);
         bluetooth = (TextView) findViewById(R.id.bluetoothEnabled);
         wifiConnected = (TextView) findViewById(R.id.wifiConnected);
-        passFail = (TextView) findViewById(R.id.passFail);
         appsStatus = (TextView) findViewById(R.id.appsStatus);
-        whatsWrong = (Button) findViewById(R.id.startFixFlow);
-        whatsWrong.setOnClickListener(this);
 
         txtManufacturer = (TextView)findViewById(R.id.txtManufacturer);
         txtModel = (TextView)findViewById(R.id.txtModel);
@@ -272,11 +268,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         appsStatus.setText(appsOkay ? "\u2713" : "X");
 
         getBatteryInfo();
-
-        Boolean passing = validateInputs();
-        passFail.setText(passing ? "Pass" : "Fail");
-        passFail.setTextColor(passing ? darkGreen : Color.RED);
-        whatsWrong.setVisibility(passing ? View.GONE : View.VISIBLE);
     }
 
     public void explainErrors() {
@@ -501,10 +492,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (id == ccid) {
             startStore(ccApp);
-        }
-
-        if (id == whatsWrong.getId()) {
-            explainErrors();
         }
     }
 
