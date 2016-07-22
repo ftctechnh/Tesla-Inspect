@@ -233,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else {
             txtIsRCInstalled.setText("X");
+            txtIsRCInstalled.setTextColor(darkGreen);
         }
 
         // is the driver station installed?
@@ -246,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else {
             txtIsDSInstalled.setText("X");
+            txtIsDSInstalled.setTextColor(darkGreen);
         }
 
         if(packageExists(rcApp) == false && packageExists(dsApp) == false)  {
