@@ -164,12 +164,24 @@ public class InspectionActivity extends AppCompatActivity implements View.OnClic
     protected void onPause() {
         unregisterReceiver(mDeviceNameReceiver);
         super.onPause();
+
+        if (handler != null) {
+            Log.d("InspectionActivity", "Boop - removing callbacks...");
+            // stop background runnable.
+            handler.removeCallbacks(refreshRunnable);
+
+            Log.d("InspectionActivity", "Boop - removed callbacks...");
+        }
     }
 
     @Override
     protected void onResume() {
         startReceivingWidiInfo();
         super.onResume();
+
+        // start the background runnable.
+        handler = new Handler();
+        handler.postDelayed(getRefreshRunnable(), 1000);
     }
 
     private Boolean validateInputs() {
