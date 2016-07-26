@@ -123,8 +123,9 @@ public class InspectionActivity extends AppCompatActivity implements View.OnClic
         initReceiver();
         startReceivingWidiInfo();
 
-        handler = new Handler();
-        handler.postDelayed(getRefreshRunnable(), 1000);
+        // start handler in onResume.
+//        handler = new Handler();
+//        handler.postDelayed(getRefreshRunnable(), 1000);
 
         refresh();
     }
