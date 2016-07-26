@@ -1,5 +1,6 @@
 package com.vegetarianbaconite.teslainspect;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -26,6 +27,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -73,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ab = getSupportActionBar();
         ab.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF0000")));
-        ab.setTitle("Tesla Inspect: " + BuildConfig.VERSION_NAME);
+        ab.setTitle("FTC Inspect: " + BuildConfig.VERSION_NAME);
 
         refreshRunnable = new Runnable() {
             @Override
@@ -126,10 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id = item.getItemId();
 
         if (id == R.id.clear_wifi) {
-            deleteAllWifi();
-            Toast.makeText(getApplicationContext(), "Deleted remembered Wifi Networks!",
-                    Toast.LENGTH_SHORT).show();
-            return true;
+            return deleteAllWifi();
         }
 
         if (id == R.id.clear_widi) {
@@ -204,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // Note that only the RC really needs the channel change app.
             // For now, however, check if ccApp is installed on all ZTE Speed phones.
             if(packageExists(ccApp)) {
-                txtIsCCInstalled.setText(getPackageInfo(ccApp).versionName);
+                txtIsCCInstalled.setText("\u2713");
                 txtIsCCInstalled.setTextColor(darkGreen);
             } else {
                 txtIsCCInstalled.setText("X");
@@ -297,6 +296,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return Settings.Global.getInt(getContentResolver(),
                 Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
     }
+
+    public Boolean getWifiDeviceLockdown() {
+        return Settings.Global.getInt(getContentResolver(),
+                Settings.Global.WIFI_DEVICE_OWNER_CONFIGS_LOCKDOWN, 0) != 0;
+    }
+
 
     public Boolean getWifiConnected() {
         WifiManager m = (WifiManager) getSystemService(WIFI_SERVICE);
@@ -461,13 +466,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void deleteAllWifi() {
+    private boolean mayAccessWifiState()  {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            // you only need to request permisision at run time for Android M and greater.
+            return true;
+        }
+
+        // check wifi device owner configs lockdown.
+        // if non zero, then app will not be able to modify networks that it did not create.
+
+        if (getWifiDeviceLockdown()) {
+            Log.d("TIENG", "TIENG - WIFI_DEVICE_OWNER_CONFIGS_LOCKDOWN is enabled");
+        }     else {
+            Log.d("TIENG", "TIENG - WIFI_DEVICE_OWNER_CONFIGS_LOCKDOWN is NOT enabled");
+        }
+
+
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            Log.d("TIENG", "ACCESS_WIFI_STATE PERMISSION_GRANTED");
+            return true;
+        } else {
+            Log.d("TIENG", "ACCESS_WIFI_STATE PERMISSION_DENIED");
+            return false;
+        }
+
+    }
+
+    private boolean deleteAllWifi() {
+        // check Android version.
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)  {
+            Toast.makeText(getApplicationContext(),
+                    "Cannot delete networks! This feature is not available with Android M or higher.",
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        boolean bError = false;
         WifiManager mainWifiObj = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         List<WifiConfiguration> list = mainWifiObj.getConfiguredNetworks();
         for (WifiConfiguration i : list) {
-            Log.d("TIENG", String.format("TIE i = %s", i.toString()));
-            mainWifiObj.removeNetwork(i.networkId);
-            mainWifiObj.saveConfiguration();
+            if (mainWifiObj.removeNetwork(i.networkId)) {
+                Log.d("TIENG", String.format("removeNetwork successful for %s", i.SSID));
+            } else {
+                Log.d("TIENG", String.format("removeNetwork failed for %s", i.SSID));
+            }
+            if (mainWifiObj.saveConfiguration()) {
+                Log.d("TIENG", String.format("saveConfiguration successful for %s", i.SSID));
+            } else {
+                Log.d("TIENG", String.format("saveConfiguration FAILED for %s", i.SSID));
+                bError = true;
+            }
+        }
+        if (bError) {
+            // had an issue deleting one or more networks.
+            Toast.makeText(getApplicationContext(), "An error occurred while deleting one or more Wifi Networks",
+                    Toast.LENGTH_LONG).show();
+            return false;
+        } else {
+            Toast.makeText(getApplicationContext(), "Deleted remembered Wifi Networks!",
+                    Toast.LENGTH_LONG).show();
+            return true;
         }
     }
 
