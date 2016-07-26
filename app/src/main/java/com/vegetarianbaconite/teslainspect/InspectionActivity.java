@@ -14,8 +14,6 @@
 
 package com.vegetarianbaconite.teslainspect;
 
-import android.Manifest;
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
@@ -26,7 +24,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -41,7 +38,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -64,7 +60,6 @@ public class InspectionActivity extends AppCompatActivity implements View.OnClic
     TextView txtManufacturer, txtModel;
     TextView txtIsRCInstalled, txtIsDSInstalled, txtIsCCInstalled;
     ActionBar ab;
-    final int dsid = 9277, ccid = 10650;
     String rcApp = "com.qualcomm.ftcrobotcontroller", dsApp = "com.qualcomm.ftcdriverstation",
             ccApp = "com.zte.wifichanneleditor", widiNameString = "";
     DeviceNameReceiver mDeviceNameReceiver;
@@ -123,10 +118,7 @@ public class InspectionActivity extends AppCompatActivity implements View.OnClic
         initReceiver();
         startReceivingWidiInfo();
 
-        // start handler in onResume.
-//        handler = new Handler();
-//        handler.postDelayed(getRefreshRunnable(), 1000);
-
+        // refresh fields.
         refresh();
     }
 
@@ -183,18 +175,6 @@ public class InspectionActivity extends AppCompatActivity implements View.OnClic
         // start the background runnable.
         handler = new Handler();
         handler.postDelayed(getRefreshRunnable(), 1000);
-    }
-
-    private Boolean validateInputs() {
-        if (!validateVersion()) return false;
-        if (!getAirplaneMode()) return false;
-        if (getBluetooth()) return false;
-        if (!getWiFiEnabled()) return false;
-        if (getWifiConnected()) return false;
-        if (!validateDeviceName()) return false;
-
-        //TODO: Name mismatch validation
-        return validateAppsInstalled();
     }
 
     private void refresh() {
@@ -290,26 +270,6 @@ public class InspectionActivity extends AppCompatActivity implements View.OnClic
         appsStatus.setText(appsOkay ? "\u2713" : "X");
 
         getBatteryInfo();
-    }
-
-    public void explainErrors() {
-        Dialogs d = new Dialogs(this);
-
-        if (!validateVersion()) d.addError(R.string.verisonError);
-        if (!getAirplaneMode()) d.addError(R.string.airplaneError);
-        if (getBluetooth()) d.addError(R.string.bluetoothError);
-        if (!getWiFiEnabled()) d.addError(R.string.wifiEnabledError);
-        if (getWifiConnected()) d.addError(R.string.wifiConnectedError);
-        if (!validateDeviceName()) d.addError(R.string.widiNameError);
-
-        if (!packageExists(ccApp)) d.addError(R.string.missingChannelChanger);
-        if (packageExists(dsApp) && (packageExists(rcApp) || appInventorExists()))
-            d.addError(R.string.tooManyApps);
-        else if ((!packageExists(dsApp) || !(packageExists(rcApp) || appInventorExists())) && !validateAppsInstalled())
-            d.addError(R.string.notEnoughApps);
-
-        Dialog dlg = d.build();
-        dlg.show();
     }
 
     @Override
@@ -471,53 +431,11 @@ public class InspectionActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    private void startStore(String appPackageName) {
-        try {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
-        } catch (android.content.ActivityNotFoundException anfe) {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
-        }
-    }
-
     @Override
     public void onClick(View view) {
         int id = view.getId();
-
-        if (id == dsid) {
-            startStore(dsApp);
-        }
-
-        if (id == ccid) {
-            startStore(ccApp);
-        }
     }
 
-    private boolean mayAccessWifiState()  {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            // you only need to request permisision at run time for Android M and greater.
-            return true;
-        }
-
-        // check wifi device owner configs lockdown.
-        // if non zero, then app will not be able to modify networks that it did not create.
-
-        if (getWifiDeviceLockdown()) {
-            Log.d("TIENG", "TIENG - WIFI_DEVICE_OWNER_CONFIGS_LOCKDOWN is enabled");
-        }     else {
-            Log.d("TIENG", "TIENG - WIFI_DEVICE_OWNER_CONFIGS_LOCKDOWN is NOT enabled");
-        }
-
-
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE);
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Log.d("TIENG", "ACCESS_WIFI_STATE PERMISSION_GRANTED");
-            return true;
-        } else {
-            Log.d("TIENG", "ACCESS_WIFI_STATE PERMISSION_DENIED");
-            return false;
-        }
-
-    }
 
     private boolean deleteAllWifi() {
         // check Android version.
