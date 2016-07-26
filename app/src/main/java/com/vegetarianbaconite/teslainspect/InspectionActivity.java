@@ -85,7 +85,7 @@ public class InspectionActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_inspection);
 
         ab = getSupportActionBar();
         ab.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF0000")));
@@ -122,7 +122,6 @@ public class InspectionActivity extends AppCompatActivity implements View.OnClic
 
         initReceiver();
         startReceivingWidiInfo();
-
 
         handler = new Handler();
         handler.postDelayed(getRefreshRunnable(), 1000);

@@ -13,4 +13,5 @@
     <string name="fixOffer">\nWe found errors, but we can try to fix some automatically. Would you like us to try?</string>
     <string name="stringManufacturer">Manufacturer:</string>
     <string name="stringModel">Model:</string>
+    <string name="button_inspection">Inspect</string>
 </resources>
